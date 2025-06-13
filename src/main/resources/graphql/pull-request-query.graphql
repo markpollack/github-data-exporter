@@ -1,0 +1,464 @@
+query FetchRepositoryPullRequests(
+  $owner: String!
+  $name: String!
+  $first: Int
+  $after: String
+  $states: [PullRequestState!]
+  $orderBy: IssueOrder
+  $filterBy: PullRequestFilter
+  $since: DateTime
+) {
+  repository(owner: $owner, name: $name) {
+    name
+    nameWithOwner
+    url
+    pullRequests(
+      first: $first
+      after: $after
+      states: $states
+      orderBy: $orderBy
+      filterBy: $filterBy
+      since: $since
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      nodes {
+        id
+        number
+        title
+        body
+        state
+        locked
+        lockReason
+        isDraft
+        url
+        createdAt
+        updatedAt
+        closedAt
+        mergedAt
+        lastEditedAt
+        isPinned
+        
+        # Merge status information
+        merged
+        mergeable
+        mergeableState
+        canBeRebased
+        maintainerCanModify
+        
+        # Author information
+        author {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+        
+        # Repository information
+        repository {
+          id
+          name
+          nameWithOwner
+          url
+        }
+        
+        # Branch information
+        baseRef {
+          id
+          name
+          prefix
+          repository {
+            nameWithOwner
+          }
+          target {
+            ... on Commit {
+              oid
+              message
+              committedDate
+            }
+          }
+        }
+        
+        headRef {
+          id
+          name
+          prefix
+          repository {
+            nameWithOwner
+          }
+          target {
+            ... on Commit {
+              oid
+              message
+              committedDate
+            }
+          }
+        }
+        
+        # Assignees
+        assignees(first: 10) {
+          nodes {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+        
+        # Requested reviewers
+        reviewRequests(first: 10) {
+          nodes {
+            requestedReviewer {
+              ... on User {
+                id
+                login
+                name
+                avatarUrl
+                url
+              }
+              ... on Team {
+                id
+                name
+                slug
+                url
+              }
+            }
+          }
+        }
+        
+        # Labels
+        labels(first: 20) {
+          nodes {
+            id
+            name
+            description
+            color
+            isDefault
+          }
+        }
+        
+        # Milestone
+        milestone {
+          id
+          title
+          description
+          state
+          dueOn
+          createdAt
+          updatedAt
+          url
+        }
+        
+        # Projects
+        projectCards(first: 10) {
+          nodes {
+            id
+            project {
+              id
+              name
+              body
+              state
+              url
+            }
+          }
+        }
+        
+        # Comments
+        comments(first: 20) {
+          totalCount
+          nodes {
+            id
+            body
+            createdAt
+            updatedAt
+            lastEditedAt
+            url
+            author {
+              ... on User {
+                id
+                login
+                name
+                avatarUrl
+                url
+              }
+            }
+            reactions(first: 10) {
+              totalCount
+              nodes {
+                content
+                user {
+                  login
+                }
+                createdAt
+              }
+            }
+          }
+        }
+        
+        # Review comments
+        reviewThreads(first: 20) {
+          totalCount
+          nodes {
+            id
+            isResolved
+            viewerCanResolve
+            path
+            line
+            startLine
+            comments(first: 10) {
+              nodes {
+                id
+                body
+                author {
+                  ... on User {
+                    login
+                    avatarUrl
+                  }
+                }
+                createdAt
+                lastEditedAt
+                url
+                replyTo {
+                  id
+                }
+                reactions(first: 5) {
+                  totalCount
+                  nodes {
+                    content
+                    user {
+                      login
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        # Reviews
+        reviews(first: 20) {
+          totalCount
+          nodes {
+            id
+            body
+            state
+            submittedAt
+            url
+            author {
+              ... on User {
+                id
+                login
+                name
+                avatarUrl
+                url
+              }
+            }
+            commit {
+              oid
+              message
+            }
+            comments(first: 10) {
+              totalCount
+            }
+          }
+        }
+        
+        # Commits
+        commits(first: 20) {
+          totalCount
+          nodes {
+            commit {
+              id
+              oid
+              message
+              author {
+                name
+                email
+                user {
+                  login
+                  avatarUrl
+                }
+              }
+              committer {
+                name
+                email
+                user {
+                  login
+                  avatarUrl
+                }
+              }
+              authoredDate
+              committedDate
+              url
+              status {
+                state
+                contexts {
+                  id
+                  context
+                  state
+                  description
+                  targetUrl
+                  createdAt
+                }
+              }
+              checkSuites(first: 10) {
+                nodes {
+                  id
+                  status
+                  conclusion
+                  checkRuns(first: 10) {
+                    nodes {
+                      id
+                      name
+                      status
+                      conclusion
+                      detailsUrl
+                      startedAt
+                      completedAt
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        # Files changed
+        files(first: 100) {
+          totalCount
+          nodes {
+            path
+            additions
+            deletions
+            changes
+            viewerViewedState
+            previousPath
+          }
+        }
+        
+        # Additions and deletions
+        additions
+        deletions
+        
+        # Reactions
+        reactions(first: 10) {
+          totalCount
+          nodes {
+            content
+            user {
+              login
+            }
+            createdAt
+          }
+        }
+        
+        # Linked issues
+        closingIssuesReferences(first: 10) {
+          nodes {
+            id
+            number
+            title
+            state
+            url
+          }
+        }
+        
+        # Timeline events
+        timelineItems(first: 30) {
+          nodes {
+            __typename
+            ... on AssignedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              assignee {
+                ... on User {
+                  login
+                }
+              }
+            }
+            ... on ClosedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+            }
+            ... on MergedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              mergeRefName
+              commit {
+                oid
+              }
+            }
+            ... on ReviewRequestedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              requestedReviewer {
+                ... on User {
+                  login
+                }
+                ... on Team {
+                  name
+                }
+              }
+            }
+          }
+        }
+        
+        # Auto-merge information
+        autoMergeRequest {
+          enabledAt
+          enabledBy {
+            login
+          }
+          mergeMethod
+        }
+        
+        # Viewer permissions
+        viewerCanSubscribe
+        viewerCanUpdate
+        viewerSubscription
+        
+        # Closed/Merged by information
+        closedBy {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+        
+        mergedBy {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+      }
+    }
+  }
+}

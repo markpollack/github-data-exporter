@@ -1,0 +1,50 @@
+# GitHub Data Exporter Application Configuration
+spring:
+  application:
+    name: github-data-exporter
+  
+  # GraphQL Client Configuration
+  graphql:
+    client:
+      url: https://api.github.com/graphql
+      timeout: 30s
+      connection-timeout: 10s
+      read-timeout: 30s
+      websocket:
+        enabled: false
+
+# GitHub API Configuration
+github:
+  api:
+    token: ${GITHUB_TOKEN:} # Set via environment variable for security
+    version: v4
+    rate-limit:
+      enabled: true
+      max-requests: 5000
+      per-hour: 3600
+  repository:
+    owner: ${REPO_OWNER:} # Repository owner to fetch data from
+    name: ${REPO_NAME:}   # Repository name to fetch data from
+
+# Export Configuration
+export:
+  directory: ${EXPORT_DIR:./exports}
+  files:
+    issues: issues.json
+    pull-requests: pull-requests.json
+  batch-size: 100  # Number of items to fetch in each GraphQL request
+  pagination:
+    enabled: true
+    max-items: 1000  # Maximum number of items to fetch in total
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.github.dataexporter: DEBUG
+    org.springframework.web.reactive.function.client: INFO
+    org.springframework.graphql.client: DEBUG
+
+# Server Configuration (for REST endpoints if needed)
+server:
+  port: 8080

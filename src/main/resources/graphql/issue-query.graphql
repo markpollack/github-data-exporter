@@ -1,0 +1,257 @@
+query FetchRepositoryIssues(
+  $owner: String!
+  $name: String!
+  $first: Int
+  $after: String
+  $states: [IssueState!]
+  $orderBy: IssueOrder
+  $filterBy: IssueFilters
+  $since: DateTime
+) {
+  repository(owner: $owner, name: $name) {
+    name
+    nameWithOwner
+    url
+    issues(
+      first: $first
+      after: $after
+      states: $states
+      orderBy: $orderBy
+      filterBy: $filterBy
+      since: $since
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      nodes {
+        id
+        number
+        title
+        body
+        state
+        locked
+        lockReason
+        isDraft
+        url
+        createdAt
+        updatedAt
+        closedAt
+        lastEditedAt
+        isPinned
+        
+        # Author information
+        author {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+        
+        # Repository information
+        repository {
+          id
+          name
+          nameWithOwner
+          url
+        }
+        
+        # Assignees
+        assignees(first: 10) {
+          nodes {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+        
+        # Labels
+        labels(first: 20) {
+          nodes {
+            id
+            name
+            description
+            color
+            isDefault
+          }
+        }
+        
+        # Milestone
+        milestone {
+          id
+          title
+          description
+          state
+          dueOn
+          createdAt
+          updatedAt
+          url
+        }
+        
+        # Projects
+        projectCards(first: 10) {
+          nodes {
+            id
+            project {
+              id
+              name
+              body
+              state
+              url
+            }
+          }
+        }
+        
+        # Comments
+        comments(first: 20) {
+          totalCount
+          nodes {
+            id
+            body
+            createdAt
+            updatedAt
+            lastEditedAt
+            url
+            author {
+              ... on User {
+                id
+                login
+                name
+                avatarUrl
+                url
+              }
+            }
+            reactions(first: 10) {
+              totalCount
+              nodes {
+                content
+                user {
+                  login
+                }
+                createdAt
+              }
+            }
+          }
+        }
+        
+        # Reactions
+        reactions(first: 10) {
+          totalCount
+          nodes {
+            content
+            user {
+              login
+            }
+            createdAt
+          }
+        }
+        
+        # Linked Pull Requests
+        timelineItems(first: 20, itemTypes: [CROSS_REFERENCED_EVENT]) {
+          nodes {
+            ... on CrossReferencedEvent {
+              id
+              createdAt
+              source {
+                ... on PullRequest {
+                  id
+                  number
+                  title
+                  state
+                  url
+                }
+              }
+            }
+          }
+        }
+        
+        # Timeline events
+        timelineItems(first: 30) {
+          nodes {
+            __typename
+            ... on AssignedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              assignee {
+                ... on User {
+                  login
+                }
+              }
+            }
+            ... on ClosedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              closer {
+                ... on Commit {
+                  oid
+                }
+                ... on PullRequest {
+                  number
+                  title
+                }
+              }
+            }
+            ... on LabeledEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              label {
+                name
+                color
+              }
+            }
+            ... on MilestonedEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              milestoneTitle
+            }
+            ... on RenamedTitleEvent {
+              id
+              createdAt
+              actor {
+                login
+              }
+              previousTitle
+              currentTitle
+            }
+          }
+        }
+        
+        # Viewer permissions
+        viewerCanSubscribe
+        viewerCanUpdate
+        viewerSubscription
+        
+        # Closed by information
+        closedBy {
+          ... on User {
+            id
+            login
+            name
+            avatarUrl
+            url
+          }
+        }
+      }
+    }
+  }
+}
