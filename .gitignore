@@ -8,7 +8,6 @@ target/
 build/
 out/
 *.class
-*.jar
 *.war
 *.ear
 *.zip
